@@ -49,7 +49,10 @@ class FabricWorkspace:
             environment: The environment to be used for parameterization.
             workspace_id: The ID of the workspace to interact with. Either `workspace_id` or `workspace_name` must be provided. Considers only `workspace_id` if both are specified.
             workspace_name: The name of the workspace to interact with. Either `workspace_id` or `workspace_name` must be provided. Considers only `workspace_id` if both are specified.
-            kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments. Supported options include
+                ``apply_dataflow_changes`` (bool): after each Dataflow publish, run
+                ``jobType=ApplyChanges``. ``refresh_dataflows`` (bool): after publish
+                (and apply when enabled), run ``jobType=Refresh``. Both default to False.
 
         Examples:
             Basic usage
@@ -168,6 +171,8 @@ class FabricWorkspace:
         # Initialize parameter file — skipped when config-based deployment omits the
         # 'parameter' field, ensuring repository parameter.yml is not auto-discovered.
         skip_parameterization = kwargs.get("skip_parameterization", False)
+        self.apply_dataflow_changes = bool(kwargs.get("apply_dataflow_changes", False))
+        self.refresh_dataflows = bool(kwargs.get("refresh_dataflows", False))
         if not skip_parameterization:
             self._refresh_parameter_file()
         else:

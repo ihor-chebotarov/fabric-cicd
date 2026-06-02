@@ -11,6 +11,7 @@ from fabric_cicd._common._exceptions import ParsingError
 from fabric_cicd._common._file import File
 from fabric_cicd._common._item import Item
 from fabric_cicd._items._base_publisher import ItemPublisher, ParallelConfig
+from fabric_cicd._items._dataflow_jobs import run_post_publish_dataflow_jobs
 from fabric_cicd._parameter._utils import (
     check_replacement,
     extract_find_value,
@@ -262,3 +263,8 @@ class DataflowPublisher(ItemPublisher):
         self.fabric_workspace_obj._publish_item(
             item_name=item_name, item_type=self.item_type, func_process_file=func_process_file
         )
+        item_guid = self.fabric_workspace_obj.repository_items[self.item_type][item_name].guid
+        if item_guid and (
+            self.fabric_workspace_obj.apply_dataflow_changes or self.fabric_workspace_obj.refresh_dataflows
+        ):
+            run_post_publish_dataflow_jobs(self.fabric_workspace_obj, item_guid, item_name)
